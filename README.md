@@ -32,15 +32,39 @@ Permission management made easy
 
 # 🤓 Usage
 
+See [API](#-api) for all methods
+
 ```go
 package main
 
 import (
-    "github.com/barbarbar338/perman"
+	"fmt"
+
+	"github.com/barbarbar338/perman"
 )
 
 func main() {
+    p := perman.Factory([]string{"user", "verified", "admin"})
 
+    user := p.Serialize([]string{"user"})
+    verified := p.Serialize([]string{"user", "verified"})
+    admin := p.Serialize([]string{"user", "admin"})
+
+    p.Has(user, "user") // true
+    p.Has(user, "admin") // false
+    p.Has(verified, "verified") // true
+    p.Has(verified, "admin") // false
+    p.Has(admin, "admin") // true
+
+    // add permissions
+    p.Has(user, "verified") // false
+    user = p.Add(user, "verified")
+    p.Has(user, "verified") // true
+
+    // remove permissions
+    p.Has(verified, "verified") // true
+    verified = p.Remove(verified, "verified")
+    p.Has(verified, "verified") // false
 }
 ```
 
@@ -70,3 +94,26 @@ Give a ⭐️ if this project helped you!
 -   Discord: https://discord.gg/BjEJFwh
 -   Instagram: https://www.instagram.com/ben_baris.d/
 -   Webpage: https://338.rocks
+
+# 📜 API
+
+| Method                        | Description                                                                         | Usage                                              | Output       |
+| ----------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------- | ------------ |
+| `Factory`                     | Creates a new Perman instance                                                       | `perman.Factory(flags []string{})`                 | `Perman`     |
+| `Keys`                        | Returns all flag names                                                              | `p.Keys()`                                         | `[]string{}` |
+| `Values`                      | Returns all flag values                                                             | `p.Values()`                                       | `[]int64`    |
+| `Get`                         | Returns the numeric value of flag                                                   | `p.Get(flag string)`                               | `int64`      |
+| `Serialize`                   | Serializes the flags                                                                | `p.Serialize(flags []string{})`                    | `int64`      |
+| `Deserialize`                 | Deserializes the permission                                                         | `p.Deserialize(permissions int64)`                 | `[]string{}` |
+| `Match`                       | Matches permissions with flags, if permissions has all flags, returns true          | `p.Match(permissions int64, flags []string{})`     | `bool`       |
+| `MatchAll` (alias of `Match`) | Matches permissions with flags, if permissions has all flags, returns true          | `p.MatchAll(permissions: int64, flags []string{})` | `bool`       |
+| `HasAll` (alias of `match`)   | Matches permissions with flags, if permissions has all flags, returns true          | `p.HasAll(permissions: int64, flags []string{})`   | `bool`       |
+| `Some`                        | Matches permissions with flags, if permissions has at least one flag, returns true  | `p.Some(permissions: int64, flags []string{})`     | `bool`       |
+| `HasSome` (alias of `some`)   | Matches permissions with flags, if permissions has at least one flag, returns true  | `p.HasSome(permissions: int64, flags []string{})`  | `bool`       |
+| `HasNone`                     | Matches permissions with flags, if permissions has at least one flag, returns false | `p.HasNone(permissions: int64, flags []string{})`  | `bool`       |
+| `None` (alias of `hasNone`)   | Matches permissions with flags, if permissions has at least one flag, returns false | `p.None(permissions: int64, flags []string{})`     | `bool`       |
+| `Has`                         | Checks if the given permission is granted                                           | `p.Has(permission int64, flag string)`             | `bool`       |
+| `Test` (alias of `has`)       | Checks if the given permission is granted                                           | `p.Test(permission int64, flag string)`            | `bool`       |
+| `Add`                         | Adds a new flag to given permission                                                 | `p.Add(permission int64, flag string)`             | `int64`      |
+| `Remove`                      | Removes a flag from given permission                                                | `p.Remove(permission int64, flag string)`          | `int64`      |
+| `Full`                        | Creates a permission with all flags                                                 | `p.Full()`                                         | `int64`      |
